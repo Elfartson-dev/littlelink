@@ -1,6 +1,6 @@
 /*
  * LittleLink pixel-art city background
- * Static by default; small parallax movement is driven only by pointer input.
+ * Static city art with restrained ambient canvas effects and pointer-driven parallax.
  */
 :root {
   --city-x: 0px;
@@ -11,7 +11,7 @@ body {
   background-image:
     linear-gradient(180deg, rgba(4, 6, 22, .34) 0%, rgba(4, 6, 22, .42) 38%, rgba(4, 6, 22, .68) 100%),
     linear-gradient(90deg, rgba(4, 6, 22, .22), rgba(4, 6, 22, .08) 52%, rgba(4, 6, 22, .28)),
-    url("../images/neon-city.webp");
+    url("../images/neon-city.png");
   background-position:
     center,
     center,
@@ -37,4 +37,15 @@ body {
   body {
     transition:none;
   }
+}
+
+/* Ambient effects sit above the image but below the page content. */
+.city-ambience {
+  position:fixed;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  opacity:.78;
 }
