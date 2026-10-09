@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 
-<!--
-  To change the theme, change the class on the html tag below to one of:
-  - theme-auto: Automatically switches based on user's system preferences
-  - theme-light: Forces light theme
-  - theme-dark: Forces dark theme
--->
-
-<html class="theme-dark" lang="en"> <!-- Update `class="theme-auto"` with your preference -->
+<!-- Theme defaults to the visitor's system preference; visitors can override it with the animated theme menu. -->
+<html class="theme-auto" lang="en">
 
   <head>
     <meta charset="utf-8">
+    <script>
+      // Apply a saved theme before styles load to avoid a flash on refresh.
+      try {
+        const savedTheme = localStorage.getItem("littlelink-theme");
+        if (["theme-auto", "theme-light", "theme-dark"].includes(savedTheme)) {
+          document.documentElement.className = savedTheme;
+        }
+      } catch (_) {
+        // Storage may be unavailable in restricted browsing contexts.
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Page Title - Change this to your name/brand (50-60 characters recommended) -->
@@ -51,6 +56,7 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/brands.css">
+    <link rel="stylesheet" href="css/theme-switcher.css">
 
     <!-- LittleLink Extended Stylesheet (Optional) -->
     <!-- <link rel="stylesheet" href="css/brands-extended.css"> -->
@@ -60,6 +66,43 @@
   </head>
 
 <body>
+
+    <!-- Animated appearance control -->
+    <div class="theme-control" data-theme-control>
+      <button class="theme-trigger" id="theme-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="theme-menu" aria-label="Choose colour theme">
+        <span class="theme-trigger__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path></svg>
+        </span>
+        <span class="theme-trigger__label">Appearance</span>
+        <span class="theme-trigger__mode" id="theme-current-mode">System</span>
+        <svg class="theme-trigger__chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5"></path></svg>
+      </button>
+
+      <div class="theme-menu" id="theme-menu" role="menu" aria-label="Choose colour theme" hidden>
+        <div class="theme-menu__heading"><span>THEME MODE</span><span class="theme-menu__sparkle" aria-hidden="true">✦</span></div>
+
+        <button class="theme-option" type="button" role="menuitemradio" data-theme="theme-auto" aria-checked="true" style="--option-index: 0">
+          <span class="theme-option__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M8 21h8M12 17v4"></path></svg></span>
+          <span class="theme-option__copy"><strong>System</strong><small>Match your device settings</small></span>
+          <span class="theme-option__check" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8"></path></svg></span>
+        </button>
+
+        <button class="theme-option" type="button" role="menuitemradio" data-theme="theme-light" aria-checked="false" style="--option-index: 1">
+          <span class="theme-option__icon theme-option__icon--light" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"></path></svg></span>
+          <span class="theme-option__copy"><strong>Light</strong><small>Bright, clean and crisp</small></span>
+          <span class="theme-option__check" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8"></path></svg></span>
+        </button>
+
+        <button class="theme-option" type="button" role="menuitemradio" data-theme="theme-dark" aria-checked="false" style="--option-index: 2">
+          <span class="theme-option__icon theme-option__icon--dark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M20.3 15.3A8.5 8.5 0 0 1 8.7 3.7 8.5 8.5 0 1 0 20.3 15.3Z"></path><path d="m16.5 3 .5 1.5 1.5.5-1.5.5-.5 1.5L16 5.5l-1.5-.5 1.5-.5.5-1.5Z"></path></svg></span>
+          <span class="theme-option__copy"><strong>Dark</strong><small>Low-glare, late-night mode</small></span>
+          <span class="theme-option__check" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="m4 10 4 4 8-8"></path></svg></span>
+        </button>
+
+        <div class="theme-menu__footer">Your choice is saved on this device.</div>
+      </div>
+      <span class="theme-sr-only" id="theme-announcement" role="status" aria-live="polite"></span>
+    </div>
 
     <div class="container">
         <div class="column">
@@ -455,6 +498,94 @@
     </div>
   </div>
 
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const control = document.querySelector("[data-theme-control]");
+      if (!control) return;
+      const trigger = control.querySelector("#theme-trigger");
+      const menu = control.querySelector("#theme-menu");
+      const options = Array.from(control.querySelectorAll("[data-theme]"));
+      const currentMode = control.querySelector("#theme-current-mode");
+      const announcement = control.querySelector("#theme-announcement");
+      const themes = ["theme-auto", "theme-light", "theme-dark"];
+      const names = { "theme-auto": "System", "theme-light": "Light", "theme-dark": "Dark" };
+
+      function getTheme() {
+        return themes.find((theme) => root.classList.contains(theme)) || "theme-auto";
+      }
+
+      function syncTheme(theme) {
+        currentMode.textContent = names[theme];
+        trigger.setAttribute("aria-label", "Choose colour theme. Current setting: " + names[theme]);
+        trigger.dataset.currentTheme = theme;
+        options.forEach((option) => {
+          const selected = option.dataset.theme === theme;
+          option.setAttribute("aria-checked", String(selected));
+          option.classList.toggle("is-selected", selected);
+        });
+      }
+
+      function closeMenu(returnFocus = false) {
+        menu.hidden = true;
+        trigger.setAttribute("aria-expanded", "false");
+        trigger.classList.remove("is-open");
+        if (returnFocus) trigger.focus();
+      }
+
+      function openMenu() {
+        menu.hidden = false;
+        trigger.setAttribute("aria-expanded", "true");
+        trigger.classList.add("is-open");
+      }
+
+      function applyTheme(theme) {
+        if (!themes.includes(theme)) return;
+        const update = () => {
+          root.classList.remove(...themes);
+          root.classList.add(theme);
+          try { localStorage.setItem("littlelink-theme", theme); } catch (_) {}
+          syncTheme(theme);
+          announcement.textContent = names[theme] + " theme selected.";
+        };
+
+        if (typeof document.startViewTransition === "function") {
+          const bounds = trigger.getBoundingClientRect();
+          root.style.setProperty("--theme-origin-x", (bounds.left + bounds.width / 2) + "px");
+          root.style.setProperty("--theme-origin-y", (bounds.top + bounds.height / 2) + "px");
+          document.startViewTransition(update);
+        } else {
+          update();
+        }
+      }
+
+      trigger.addEventListener("click", () => menu.hidden ? openMenu() : closeMenu());
+      menu.addEventListener("click", (event) => {
+        const option = event.target.closest("[data-theme]");
+        if (!option) return;
+        applyTheme(option.dataset.theme);
+        closeMenu(true);
+      });
+      document.addEventListener("pointerdown", (event) => {
+        if (!control.contains(event.target) && !menu.hidden) closeMenu();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !menu.hidden) {
+          event.preventDefault();
+          closeMenu(true);
+          return;
+        }
+        if (menu.hidden || !["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+        const index = options.indexOf(document.activeElement);
+        if (event.key === "Home") { event.preventDefault(); options[0].focus(); }
+        else if (event.key === "End") { event.preventDefault(); options[options.length - 1].focus(); }
+        else if (event.key === "ArrowDown") { event.preventDefault(); options[(index + 1 + options.length) % options.length].focus(); }
+        else if (event.key === "ArrowUp") { event.preventDefault(); options[(index - 1 + options.length) % options.length].focus(); }
+      });
+      syncTheme(getTheme());
+    })();
+  </script>
 </body>
 
 </html>
