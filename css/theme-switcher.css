@@ -38,6 +38,7 @@ body, a:not(.button) { transition:background-color 420ms ease,color 320ms ease; 
   font:400 .875rem/1.35 "Open Sans",system-ui,sans-serif; text-align:left; -webkit-font-smoothing:antialiased;
 }
 @property --theme-angle { syntax:"<angle>"; inherits:false; initial-value:0deg; }
+@property --link-angle { syntax:"<angle>"; inherits:false; initial-value:0deg; }
 .theme-trigger {
   position:relative; isolation:isolate; display:inline-flex; align-items:center; justify-content:center; gap:.65rem;
   width:auto; min-height:0; margin:0; padding:.68rem .9rem; overflow:hidden;
