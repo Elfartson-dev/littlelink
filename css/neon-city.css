@@ -1,0 +1,54 @@
+/*
+ * LittleLink pixel-art city background
+ * Static city art with restrained ambient canvas effects and pointer-driven parallax.
+ */
+:root {
+  --city-x: 0px;
+  --city-y: 0px;
+}
+body {
+  background-color:#080a1b;
+  background-image:
+    linear-gradient(180deg, rgba(4, 6, 22, .34) 0%, rgba(4, 6, 22, .42) 38%, rgba(4, 6, 22, .68) 100%),
+    linear-gradient(90deg, rgba(4, 6, 22, .22), rgba(4, 6, 22, .08) 52%, rgba(4, 6, 22, .28)),
+    url("../images/neon-city.png");
+  background-position:
+    center,
+    center,
+    calc(50% + var(--city-x)) calc(50% + var(--city-y));
+  background-size:cover, cover, cover;
+  background-repeat:no-repeat;
+  background-attachment:fixed, fixed, fixed;
+  transition:background-position 90ms ease-out;
+}
+.container {
+  position:relative;
+  z-index:1;
+}
+.theme-control {
+  z-index:1000;
+}
+@media (max-width:700px) {
+  body {
+    background-attachment:scroll, scroll, scroll;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  body {
+    transition:none;
+  }
+}
+
+/* Ambient effects sit above the image but below the page content. */
+.city-ambience {
+  position:fixed;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  opacity:.78;
+}
+
+/* Ambient effects sit above the city art but below page content. */
+.city-ambience { position:fixed; inset:0; z-index:0; width:100%; height:100%; pointer-events:none; opacity:.78; }

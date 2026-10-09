@@ -57,6 +57,8 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/brands.css">
     <link rel="stylesheet" href="css/theme-switcher.css">
+    <link rel="stylesheet" href="css/neon-city.css">
+    <script src="neon-city.js" defer></script>
 
     <!-- LittleLink Extended Stylesheet (Optional) -->
     <!-- <link rel="stylesheet" href="css/brands-extended.css"> -->
@@ -585,6 +587,22 @@
         else if (event.key === "ArrowUp") { event.preventDefault(); options[(index - 1 + options.length) % options.length].focus(); }
       });
       syncTheme(getTheme());
+    })();
+  </script>
+
+  <script>
+    // The city background only moves in response to pointer input; there is no idle animation.
+    (() => {
+      const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+      if (!finePointer.matches) return;
+
+      const root = document.documentElement;
+      window.addEventListener("pointermove", (event) => {
+        const x = (event.clientX / window.innerWidth - 0.5) * 12;
+        const y = (event.clientY / window.innerHeight - 0.5) * 8;
+        root.style.setProperty("--city-x", (-x).toFixed(2) + "px");
+        root.style.setProperty("--city-y", (-y).toFixed(2) + "px");
+      }, { passive: true });
     })();
   </script>
 </body>
